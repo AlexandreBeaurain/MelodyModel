@@ -14,8 +14,9 @@
 	},
 	"autoload" : {
 		"psr-0" : {
-			"Melody\\ModelBundle\\" : ""
+			"Melody\\ModelBundle" : ""
 		}
 	},
+	"target-dir" : "",
 	"minimum-stability" : "dev"
 }
