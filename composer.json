@@ -17,6 +17,6 @@
 			"Melody\\ModelBundle" : ""
 		}
 	},
-	"target-dir" : "",
+	"target-dir" : "Melody/ModelBundle",
 	"minimum-stability" : "dev"
 }
