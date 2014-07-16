@@ -173,7 +173,7 @@ class Dia extends Schema
             if ( isset( $values['slug'] ) ) {
                 unset( $values['slug'] );
                 $values['primaryString'] = true;
-                $this->classes[$i18nClassName]['_propel_behaviors']['sluggable'] = array(
+                $this->classes[$i18nClassName]['_behaviors']['sluggable'] = array(
                     'slug_column' => 'slug_column',
                     'replacement' => '-'
                 );
@@ -189,7 +189,7 @@ class Dia extends Schema
             if ( isset( $values['slug'] ) ) {
                 unset( $values['slug'] );
                 $values['primaryString'] = true;
-                $this->classes[$className]['_propel_behaviors']['sluggable'] = array(
+                $this->classes[$className]['_behaviors']['sluggable'] = array(
                     'slug_column' => 'slug_column',
                     'replacement' => '-'
                 );
@@ -208,7 +208,7 @@ class Dia extends Schema
         switch( $operationName ) {
             case 'Versionable':
                 $this->classes[$className]['version']['type'] = 'integer';
-                $this->classes[$className]['_propel_behaviors']['versionable'] = array('version_column'=>'version');
+                $this->classes[$className]['_behaviors']['versionable'] = array('version_column'=>'version');
                 break;
             case 'Timestampable':
                 $this->classes[$className]['created_at']['type'] = 'timestamp';
@@ -221,7 +221,7 @@ class Dia extends Schema
                 $this->classes[$className]['tree_right']['type'] = 'integer';
                 //$this->classes[$className]['tree_right']['nestedSetRightKey'] = true;
                 $this->classes[$className]['tree_level']['type'] = 'integer';
-                $this->classes[$className]['_propel_behaviors']['nested_set'] = array(
+                $this->classes[$className]['_behaviors']['nested_set'] = array(
                     'left_column' => 'tree_left',
                     'right_column' => 'tree_right',
                     'level_column' => 'tree_level',
@@ -240,7 +240,7 @@ class Dia extends Schema
                     $options['scope_column'] = $p['name']->getValue();
                     $options['use_scope'] = true;
                 }
-                $this->classes[$className]['_propel_behaviors']['sortable'] = $options;
+                $this->classes[$className]['_behaviors']['sortable'] = $options;
                 break;
             case 'Geocodable':
                 $geocodableAddressFields = array();
@@ -248,7 +248,7 @@ class Dia extends Schema
                     $p = $param->getAttributes();
                     $geocodableAddressFields[] =  $p['name']->getValue();
                 }
-                $this->classes[$className]['_propel_behaviors']['geocodable'] = array(
+                $this->classes[$className]['_behaviors']['geocodable'] = array(
                     'geocode_address'=>true,
                     'address_columns'=>implode(',',$geocodableAddressFields)
                 );
@@ -309,13 +309,13 @@ class Dia extends Schema
         $this->classes[$toClassName]['id']['foreignReference'] = 'id';
         $this->classes[$toClassName]['id']['onDelete'] = 'cascade';
         // concrete_inheritance / class_table_inheritance / single_inheritance
-        $this->classes[$toClassName]['_propel_behaviors']['class_table_inheritance'] = array(
+        $this->classes[$toClassName]['_behaviors']['class_table_inheritance'] = array(
             'extends' => $fromClassName
         );
         if ( isset( $this->classes[$toClassName]['_attributes']['isI18N'] ) && isset( $this->classes[$fromClassName]['_attributes']['isI18N'] ) ) {
             $toI18nClassName = $this->classes[$toClassName]['_attributes']['i18nTable'];
             $fromI18nClassName = $this->classes[$fromClassName]['_attributes']['i18nTable'];
-            $this->classes[$toI18nClassName]['_propel_behaviors']['class_table_inheritance'] = array(
+            $this->classes[$toI18nClassName]['_behaviors']['class_table_inheritance'] = array(
                 'extends' => $fromI18nClassName,
                 'descendant_column' => 'descendant_class_i18n'
             );

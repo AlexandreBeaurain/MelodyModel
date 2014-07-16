@@ -1,7 +1,7 @@
 {
 	"name" : "melody/model",
-	"type" : "library",
-	"description" : "Melody model component",
+	"type" : "symfony-bundle",
+	"description" : "Melody model bundle",
 	"require" : {
 		"php" : ">=5.3.3"
 	},

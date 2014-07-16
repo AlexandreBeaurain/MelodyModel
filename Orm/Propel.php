@@ -32,7 +32,7 @@ class Propel extends Orm
             $database->appendChild( $doc->createTextNode("\n\t") );
             $database->appendChild($table);
             foreach( $tableConfiguration as $columnName => $columnConfiguration ) {
-                if ( $columnName == '_propel_behaviors' ) {
+                if ( $columnName == '_behaviors' ) {
                     foreach ( $columnConfiguration as $behaviorName => $behaviorConfiguration ) {
                         $behavior = $doc->createElement('behavior');
                         $behavior->setAttribute('name', $behaviorName);
