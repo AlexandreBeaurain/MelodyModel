@@ -1,5 +1,5 @@
 {
-	"name" : "AlexandreBeaurain/MelodyModel",
+	"name" : "melody/model",
 	"type" : "library",
 	"description" : "Melody model component",
 	"require" : {
