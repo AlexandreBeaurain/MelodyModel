@@ -10,7 +10,11 @@
 	},
 	"suggest" : {
 		"doctrine/doctrine-bundle" : "~1.2",
-		"propel/propel-bundle" : "1.4.*@dev"
+		"doctrine/orm" : "~2.2,>=2.2.3",
+		"gedmo/doctrine-extensions": "2.3.*@dev",
+		"propel/propel-bundle" : "1.4.*@dev",
+		"willdurand/propel-geocodable-behavior" : "dev-master",
+		"willdurand/propel-typehintable-behavior" : "dev-master"
 	},
 	"autoload" : {
 		"psr-0" : {
