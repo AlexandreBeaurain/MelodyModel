@@ -20,13 +20,14 @@ use Symfony\Component\DependencyInjection\Container;
 class Doctrine extends Orm
 {
     public function writeConfiguration($outputDirectory) {
-        $doc = new \DOMDocument('1.0', 'UTF-8');
-        $mapping = $doc->createElement('doctrine-mapping');
-        $mapping->setAttribute('xmlns', 'http://doctrine-project.org/schemas/orm/doctrine-mapping');
-        $mapping->setAttribute('xmlns:xsi','http://www.w3.org/2001/XMLSchema-instance');
-        $mapping->setAttribute('xsi:schemaLocation','http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd');
-        $doc->appendChild($mapping);
         foreach( $this->schema as $entityName => $entityConfiguration ) {
+            $doc = new \DOMDocument('1.0', 'UTF-8');
+            $mapping = $doc->createElement('doctrine-mapping');
+            $mapping->setAttribute('xmlns', 'http://doctrine-project.org/schemas/orm/doctrine-mapping');
+            $mapping->setAttribute('xmlns:xsi','http://www.w3.org/2001/XMLSchema-instance');
+            $mapping->setAttribute('xmlns:gedmo','http://gediminasm.org/schemas/orm/doctrine-extensions-mapping');
+            $mapping->setAttribute('xsi:schemaLocation','http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd');
+            $doc->appendChild($mapping);
             $entityName = strtr( $entityName, array('.'=>'_') );
             $entity = $doc->createElement('entity');
             $entity->setAttribute('name', $this->namespace.'\\Entity\\'.Container::camelize($entityName));
@@ -62,6 +63,16 @@ class Doctrine extends Orm
                     $column->setAttribute('name', $columnName);
                     $entity->appendChild( $doc->createTextNode("\n\t\t") );
                     $entity->appendChild( $column );
+                    if ( in_array( $columnName, array('created_at','updated_at') ) ) {
+                        $behavior = $doc->createElement('gedmo:timestampable');
+                        $behavior->setAttribute('on', $columnName == 'created_at' ? 'create' : 'update' );
+                        $column->appendChild( $doc->createTextNode("\n\t\t\t") );
+                        $column->appendChild( $behavior );
+                        $column->appendChild( $doc->createTextNode("\n\t\t") );
+                    }
+                    if ( $columnConfiguration['type'] == 'timestamp' ) {
+                        $columnConfiguration['type'] = 'datetime';
+                    }
                     foreach( $columnConfiguration as $attributeName => $attributeValue ) {
                         if ( $attributeName == 'index' ) {
                             $indexName = $attributeValue == 'unique' ? 'unique-constraint' : 'index';
@@ -106,7 +117,7 @@ class Doctrine extends Orm
                             $generator->setAttribute('strategy', 'AUTO');
                             $column->appendChild( $doc->createTextNode("\n\t\t\t") );
                             $column->appendChild( $generator );
-                            $column->appendChild( $doc->createTextNode("\n\t\t\t") );
+                            $column->appendChild( $doc->createTextNode("\n\t\t") );
                         }
                         else if ( !in_array($attributeName, array('foreignReference','onDelete') ) ) {
                             $column->setAttribute($attributeName, $attributeValue);
@@ -115,8 +126,8 @@ class Doctrine extends Orm
                 }
             }
             $entity->appendChild( $doc->createTextNode("\n\t") );
+            $mapping->appendChild( $doc->createTextNode("\n") );
+            $doc->save($outputDirectory.'/'.Container::camelize($entityName).'.orm.xml');
         }
-        $mapping->appendChild( $doc->createTextNode("\n") );
-        $doc->save($outputDirectory.'/schema.xml');
     }
 }

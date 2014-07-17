@@ -125,18 +125,8 @@ class Dia extends Schema
         $match = array();
         if ( preg_match('|^string\(([\d]+)\)$|ims', $type, $match ) ) {
             $size = (int) $match[1];
-            if ( $size > 65536 ) {
-                $type = 'clob';
-                unset($size);
-            }
-            else if ( $size > 255 ) {
-                $type = 'longvarchar';
-                unset($size);
-            }
-            else {
-                $type = 'varchar';
-                $values['size'] = $size;
-            }
+            $type = 'string';
+            $values['size'] = $size;
         }
         if ( isset( $values['notnull'] ) ) {
             unset( $values['notnull'] );

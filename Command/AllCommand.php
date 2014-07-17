@@ -38,15 +38,15 @@ class AllCommand extends AbstractCommand
     {
         $container = $this->getContainer();
         $kernel = $container->get('kernel');
-        $commandList = array( array( 'name' => 'model:schema', 'arguments' => array('') ) );
+        $commandList = array( array('command'=>'model:schema','') );
         foreach( $this->getRegistredOrmList($input) as $orm ) {
             switch ( $orm ) {
                 case 'Propel':
-                    $commandList[] = array( 'name' => 'propel:build', 'arguments' => array('') );
-                    //$commandList[] = array( 'name' => 'propel:form:generate', 'arguments' => array('') );
-                    $commandList[] = array( 'name' => 'propel:migration:generate-diff', 'arguments' => array('') );
-                    $commandList[] = array( 'name' => 'propel:migration:migrate', 'arguments' => array('') );
-                    $commandList[] = array( 'name' => 'cache:clear', 'arguments' => array('') );
+                    $commandList[] = array('command'=>'propel:build','');
+                    //$commandList[] = array('command'=>'propel:form:generate','');
+                    $commandList[] = array('command'=>'propel:migration:generate-diff','');
+                    $commandList[] = array('command'=>'propel:migration:migrate','');
+                    $commandList[] = array('command'=>'cache:clear','');
                     break;
                 case 'Doctrine':
                     foreach( $container->getParameter('kernel.bundles') as $bundleName => $bundleClass ) {
@@ -57,27 +57,26 @@ class AllCommand extends AbstractCommand
                             $entityRepository = dirname(dirname($resource)).'/Entity';
                             $finder = new Finder();
                             $generateEntities = false;
-                            foreach( $finder->files()->name('schema.dia')->in($path) as $uml ) {
+                            foreach( $finder->files()->name('*.orm.xml')->in($path.'/doctrine') as $xml ) {
                                 $generateEntities = true;
                             }
                             if ( $generateEntities ) {
-                                $commandList[] = array( 'name' => 'doctrine:generate:entities', 'arguments' => array($bundleName) );
+                                $commandList[] = array('command'=>'doctrine:generate:entities','--no-backup'=>true,'-vvv'=>true,'name'=>$bundleName);
                             }
                         }
                         catch (\InvalidArgumentException $e ) {
                         }
                     }
-                    $commandList[] = array( 'name' => 'doctrine:schema:update', 'arguments' => array('--force') );
-                    $commandList[] = array( 'name' => 'cache:clear', 'arguments' => array('') );
+                    $commandList[] = array('command'=>'doctrine:schema:update','--force'=>true);
+                    $commandList[] = array('command'=>'cache:clear','');
                     break;
                 default:
                     break;
             }
         }
-        foreach( $commandList as $commandNameAndArguments ) {
-            $command = $this->getApplication()->find($commandNameAndArguments['name']);
-            $localInput = new ArrayInput($commandNameAndArguments['arguments']);
-            var_dump($commandNameAndArguments);
+        foreach( $commandList as $arguments ) {
+            $command = $this->getApplication()->find($arguments['command']);
+            $localInput = new ArrayInput($arguments);
             $command->run($localInput, $output);
         }
     }

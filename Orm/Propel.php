@@ -58,6 +58,20 @@ class Propel extends Orm
                     $column->setAttribute('name', $columnName);
                     $table->appendChild( $doc->createTextNode("\n\t\t") );
                     $table->appendChild($column);
+                    if ( $columnConfiguration['type'] == 'string' ) {
+                        if ( $size > 65536 ) {
+                            $type = 'clob';
+                            unset($columnConfiguration['size']);
+                        }
+                        else if ( $size > 255 ) {
+                            $type = 'longvarchar';
+                            unset($columnConfiguration['size']);
+                        }
+                        else {
+                            $type = 'varchar';
+                        }
+                        $columnConfiguration['type'] = $type;
+                    }
                     foreach( $columnConfiguration as $attributeName => $attributeValue ) {
                         if ( $attributeName == 'index' ) {
                             $indexName = $attributeValue == 'unique' ? 'unique' : 'index';
