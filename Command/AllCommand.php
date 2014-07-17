@@ -61,7 +61,7 @@ class AllCommand extends AbstractCommand
                                 $generateEntities = true;
                             }
                             if ( $generateEntities ) {
-                                $commandList[] = array('command'=>'doctrine:generate:entities','--no-backup'=>true,'-vvv'=>true,'name'=>$bundleName);
+                                $commandList[] = array('command'=>'doctrine:generate:entities','--no-backup'=>true,'name'=>$bundleName);
                             }
                         }
                         catch (\InvalidArgumentException $e ) {

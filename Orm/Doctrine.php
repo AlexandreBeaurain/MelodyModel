@@ -19,6 +19,7 @@ use Symfony\Component\DependencyInjection\Container;
  */
 class Doctrine extends Orm
 {
+    
     public function writeConfiguration($outputDirectory) {
         foreach( $this->schema as $entityName => $entityConfiguration ) {
             $doc = new \DOMDocument('1.0', 'UTF-8');
@@ -36,24 +37,13 @@ class Doctrine extends Orm
             $mapping->appendChild( $entity );
             $uniqueContraints = null;
             $indexes = null;
+            $behaviors = null;
+            if ( isset($entityConfiguration['_behaviors']) ) {
+                $behaviors = $entityConfiguration['_behaviors'];
+                unset($entityConfiguration['_behaviors']);
+            }
             foreach( $entityConfiguration as $columnName => $columnConfiguration ) {
-                if ( $columnName == '_behaviors' ) {
-                    foreach ( $columnConfiguration as $behaviorName => $behaviorConfiguration ) {
-                        $behavior = $doc->createElement('behavior');
-                        $behavior->setAttribute('name', $behaviorName);
-                        $entity->appendChild( $doc->createTextNode("\n\t\t") );
-                        $entity->appendChild($behavior);
-                        foreach( $behaviorConfiguration as $behaviorParameterName => $behaviorParameterValue) {
-                            $behavior->appendChild( $doc->createTextNode("\n\t\t\t") );
-                            $behaviorParameter = $doc->createElement('parameter');
-                            $behaviorParameter->setAttribute('name', $behaviorParameterName);
-                            $behaviorParameter->setAttribute('value', $behaviorParameterValue);
-                            $behavior->appendChild($behaviorParameter);
-                        }
-                        $behavior->appendChild( $doc->createTextNode("\n\t\t") );
-                    }
-                }
-                else if ( $columnName == '_attributes' ) {
+                if ( $columnName == '_attributes' ) {
                     foreach ( $columnConfiguration as $attributeName => $attributeValue ) {
                         $entity->setAttribute($attributeName,$attributeValue);
                     }
@@ -123,6 +113,44 @@ class Doctrine extends Orm
                             $column->setAttribute($attributeName, $attributeValue);
                         }
                     }
+                }
+            }
+            if ( !empty( $behaviors ) ) {
+                foreach ( $behaviors as $behaviorName => $behaviorConfiguration ) {
+                    switch( $behaviorName ) {
+                        case 'geocodable':
+                            $xpath = new \DOMXPath($doc);
+                            var_dump($behaviorConfiguration);
+                            break;
+                        case 'class_table_inheritance':
+                            $entity->setAttribute('inheritance-type','JOINED');
+                            break;
+                        case 'nested_set':
+                            $xpath = new \DOMXPath($doc);
+                            foreach( $behaviorConfiguration as $behaviorParameterName => $behaviorParameterValue ) {
+                                foreach( $xpath->evaluate('//field[@name="'.$behaviorParameterValue.'"]') as $column ) {
+                                    $behavior = $doc->createElement('gedmo:tree-'.substr( $behaviorParameterName, 0, strpos($behaviorParameterName,'_') ) );
+                                    $column->appendChild( $doc->createTextNode("\n\t\t\t") );
+                                    $column->appendChild( $behavior );
+                                    $column->appendChild( $doc->createTextNode("\n\t\t") );
+                                }
+                            }
+                            break;
+                    }
+                    /*
+                     $behavior = $doc->createElement('behavior');
+                     $behavior->setAttribute('name', $behaviorName);
+                     $entity->appendChild( $doc->createTextNode("\n\t\t") );
+                     $entity->appendChild($behavior);
+                     foreach( $behaviorConfiguration as $behaviorParameterName => $behaviorParameterValue) {
+                     $behavior->appendChild( $doc->createTextNode("\n\t\t\t") );
+                     $behaviorParameter = $doc->createElement('parameter');
+                     $behaviorParameter->setAttribute('name', $behaviorParameterName);
+                     $behaviorParameter->setAttribute('value', $behaviorParameterValue);
+                     $behavior->appendChild($behaviorParameter);
+                     }
+                     $behavior->appendChild( $doc->createTextNode("\n\t\t") );
+                     */
                 }
             }
             $entity->appendChild( $doc->createTextNode("\n\t") );
