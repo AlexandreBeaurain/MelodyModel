@@ -40,7 +40,7 @@ abstract class AbstractCommand extends ContainerAwareCommand
 
 	protected function getRegistredOrmList(InputInterface $input) {
 		$bundles = $this->getContainer()->get('kernel')->getBundles();
-		if (isset($this->ormList[$input->getOption('orm')]) ) {
+		if ($input->hasOption('orm') && isset($this->ormList[$input->getOption('orm')]) ) {
 			return array($input->getOption('orm'));
 		}
 		$ormList = array();

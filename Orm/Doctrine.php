@@ -84,7 +84,7 @@ class Doctrine extends Orm
                             }
                             $indexesNode->appendChild( $doc->createTextNode("\n\t\t\t") );
                             $indexesNode->appendChild($index);
-                            $index->setAttributes('columns',$columnName);
+                            $index->setAttribute('columns',$columnName);
                         }
                         else if ( $attributeName == 'foreignTable' ) {
                             /*

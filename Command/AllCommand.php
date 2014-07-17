@@ -38,7 +38,7 @@ class AllCommand extends AbstractCommand
         $commandList = array(
             'model:schema'=>array('')
         );
-        foreach( $this->getOrmList() as $orm ) {
+        foreach( $this->getRegistredOrmList($input) as $orm ) {
             switch ( $orm ) {
                 case 'Propel':
                     $commandList['propel:build']=array('');
@@ -46,6 +46,10 @@ class AllCommand extends AbstractCommand
                     $commandList['propel:migration:generate-diff']=array('');
                     $commandList['propel:migration:migrate']=array('');
                     $commandList['cache:clear']=array('');
+                    break;
+                case 'Doctrine':
+                    break;
+                default:
                     break;
             }
         }
