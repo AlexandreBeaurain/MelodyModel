@@ -88,19 +88,20 @@ class Doctrine extends Orm
                             $index->setAttribute('columns',$columnName);
                         }
                         else if ( $attributeName == 'foreignTable' ) {
-                            /*
-                            $foreignKey = $doc->createElement('foreign-key');
+                            $tagName = 'one-to-many';
+                            var_dump($attributeValue);
+                            $foreignKey = $doc->createElement($tagName);
                             $entity->appendChild( $doc->createTextNode("\n\t\t") );
-                            $entity->appendChild($foreignKey);
-                            $foreignKey->setAttribute('foreignTable', $attributeValue);
-                            $foreignKey->setAttribute('onDelete', $columnConfiguration['onDelete']);
+                            $entity->appendChild( $foreignKey );
+                            $foreignKey->setAttribute('field', strpos($attributeValue,'\\') !== false ? substr( $attributeValue, strrpos($attributeValue,'\\')+1 ) : $attributeValue );
+                            $foreignKey->setAttribute('target-entity', $attributeValue);
                             $foreignKey->appendChild( $doc->createTextNode("\n\t\t\t") );
-                            $reference = $doc->createElement('reference');
-                            $reference->setAttribute('local', $columnName);
-                            $reference->setAttribute('foreign', $columnConfiguration['foreignReference']);
-                            $foreignKey->appendChild($reference);
+                            $joinColumn = $doc->createElement('join-column');
+                            $joinColumn->setAttribute('name',$columnName);
+                            $joinColumn->setAttribute('referenced-column-name',$columnConfiguration['foreignReference']);
+                            $joinColumn->setAttribute('on-delete',$columnConfiguration['onDelete']);
+                            $foreignKey->appendChild( $joinColumn );
                             $foreignKey->appendChild( $doc->createTextNode("\n\t\t") );
-                            */
                         }
                         else if ( $attributeName == 'autoIncrement' ) {
                             $generator = $doc->createElement('generator');
@@ -119,8 +120,6 @@ class Doctrine extends Orm
                 foreach ( $behaviors as $behaviorName => $behaviorConfiguration ) {
                     switch( $behaviorName ) {
                         case 'geocodable':
-                            $xpath = new \DOMXPath($doc);
-                            var_dump($behaviorConfiguration);
                             break;
                         case 'class_table_inheritance':
                             $entity->setAttribute('inheritance-type','JOINED');
@@ -135,22 +134,12 @@ class Doctrine extends Orm
                                     $column->appendChild( $doc->createTextNode("\n\t\t") );
                                 }
                             }
+                            $behavior = $doc->createElement('gedmo:tree');
+                            $behavior->setAttribute('type','nested');
+                            $entity->appendChild( $doc->createTextNode("\n\t\t") );
+                            $entity->appendChild( $behavior );
                             break;
                     }
-                    /*
-                     $behavior = $doc->createElement('behavior');
-                     $behavior->setAttribute('name', $behaviorName);
-                     $entity->appendChild( $doc->createTextNode("\n\t\t") );
-                     $entity->appendChild($behavior);
-                     foreach( $behaviorConfiguration as $behaviorParameterName => $behaviorParameterValue) {
-                     $behavior->appendChild( $doc->createTextNode("\n\t\t\t") );
-                     $behaviorParameter = $doc->createElement('parameter');
-                     $behaviorParameter->setAttribute('name', $behaviorParameterName);
-                     $behaviorParameter->setAttribute('value', $behaviorParameterValue);
-                     $behavior->appendChild($behaviorParameter);
-                     }
-                     $behavior->appendChild( $doc->createTextNode("\n\t\t") );
-                     */
                 }
             }
             $entity->appendChild( $doc->createTextNode("\n\t") );
