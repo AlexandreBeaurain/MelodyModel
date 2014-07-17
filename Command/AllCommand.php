@@ -17,6 +17,8 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Component\Finder\Finder;
 
 /**
  * Cascade all commands from shema file to update sql structure
@@ -35,27 +37,47 @@ class AllCommand extends AbstractCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $container = $this->getContainer();
-        $commandList = array(
-            'model:schema'=>array('')
-        );
+        $kernel = $container->get('kernel');
+        $commandList = array( array( 'name' => 'model:schema', 'arguments' => array('') ) );
         foreach( $this->getRegistredOrmList($input) as $orm ) {
             switch ( $orm ) {
                 case 'Propel':
-                    $commandList['propel:build']=array('');
-                    //$commandList['propel:form:generate']=array('');
-                    $commandList['propel:migration:generate-diff']=array('');
-                    $commandList['propel:migration:migrate']=array('');
-                    $commandList['cache:clear']=array('');
+                    $commandList[] = array( 'name' => 'propel:build', 'arguments' => array('') );
+                    //$commandList[] = array( 'name' => 'propel:form:generate', 'arguments' => array('') );
+                    $commandList[] = array( 'name' => 'propel:migration:generate-diff', 'arguments' => array('') );
+                    $commandList[] = array( 'name' => 'propel:migration:migrate', 'arguments' => array('') );
+                    $commandList[] = array( 'name' => 'cache:clear', 'arguments' => array('') );
                     break;
                 case 'Doctrine':
+                    foreach( $container->getParameter('kernel.bundles') as $bundleName => $bundleClass ) {
+                        $resource = '@'.$bundleName.'/Resources/config';
+                        $namespace = substr( $bundleClass, 0, strrpos($bundleClass, '\\') );
+                        try {
+                            $path = $kernel->locateResource($resource);
+                            $entityRepository = dirname(dirname($resource)).'/Entity';
+                            $finder = new Finder();
+                            $generateEntities = false;
+                            foreach( $finder->files()->name('schema.dia')->in($path) as $uml ) {
+                                $generateEntities = true;
+                            }
+                            if ( $generateEntities ) {
+                                $commandList[] = array( 'name' => 'doctrine:generate:entities', 'arguments' => array($bundleName) );
+                            }
+                        }
+                        catch (\InvalidArgumentException $e ) {
+                        }
+                    }
+                    $commandList[] = array( 'name' => 'doctrine:schema:update', 'arguments' => array('--force') );
+                    $commandList[] = array( 'name' => 'cache:clear', 'arguments' => array('') );
                     break;
                 default:
                     break;
             }
         }
-        foreach( $commandList as $commandName => $arguments ) {
-            $command = $this->getApplication()->find($commandName);
-            $localInput = new ArrayInput($arguments);
+        foreach( $commandList as $commandNameAndArguments ) {
+            $command = $this->getApplication()->find($commandNameAndArguments['name']);
+            $localInput = new ArrayInput($commandNameAndArguments['arguments']);
+            var_dump($commandNameAndArguments);
             $command->run($localInput, $output);
         }
     }
