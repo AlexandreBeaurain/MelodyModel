@@ -88,20 +88,21 @@ class Doctrine extends Orm
                             $index->setAttribute('columns',$columnName);
                         }
                         else if ( $attributeName == 'foreignTable' ) {
-                            $tagName = 'one-to-many';
-                            var_dump($attributeValue);
-                            $foreignKey = $doc->createElement($tagName);
-                            $entity->appendChild( $doc->createTextNode("\n\t\t") );
-                            $entity->appendChild( $foreignKey );
-                            $foreignKey->setAttribute('field', strpos($attributeValue,'\\') !== false ? substr( $attributeValue, strrpos($attributeValue,'\\')+1 ) : $attributeValue );
-                            $foreignKey->setAttribute('target-entity', $attributeValue);
-                            $foreignKey->appendChild( $doc->createTextNode("\n\t\t\t") );
-                            $joinColumn = $doc->createElement('join-column');
-                            $joinColumn->setAttribute('name',$columnName);
-                            $joinColumn->setAttribute('referenced-column-name',$columnConfiguration['foreignReference']);
-                            $joinColumn->setAttribute('on-delete',$columnConfiguration['onDelete']);
-                            $foreignKey->appendChild( $joinColumn );
-                            $foreignKey->appendChild( $doc->createTextNode("\n\t\t") );
+                            if ( $columnName != 'id' ) {
+                                $tagName = 'many-to-one';
+                                $foreignKey = $doc->createElement($tagName);
+                                $entity->appendChild( $doc->createTextNode("\n\t\t") );
+                                $entity->appendChild( $foreignKey );
+                                $foreignKey->setAttribute('field', strpos($attributeValue,'\\') !== false ? substr( $attributeValue, strrpos($attributeValue,'\\')+1 ) : $attributeValue );
+                                $foreignKey->setAttribute('target-entity', $attributeValue);
+                                $foreignKey->appendChild( $doc->createTextNode("\n\t\t\t") );
+                                $joinColumn = $doc->createElement('join-column');
+                                $joinColumn->setAttribute('name',$columnName);
+                                $joinColumn->setAttribute('referenced-column-name',$columnConfiguration['foreignReference']);
+                                $joinColumn->setAttribute('on-delete',$columnConfiguration['onDelete']);
+                                $foreignKey->appendChild( $joinColumn );
+                                $foreignKey->appendChild( $doc->createTextNode("\n\t\t") );
+                            }
                         }
                         else if ( $attributeName == 'autoIncrement' ) {
                             $generator = $doc->createElement('generator');
