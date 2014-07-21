@@ -94,7 +94,7 @@ class Doctrine extends Orm
                                 $entity->appendChild( $doc->createTextNode("\n\t\t") );
                                 $entity->appendChild( $foreignKey );
                                 $foreignKey->setAttribute('field', strpos($attributeValue,'\\') !== false ? substr( $attributeValue, strrpos($attributeValue,'\\')+1 ) : $attributeValue );
-                                $foreignKey->setAttribute('target-entity', $attributeValue);
+                                $foreignKey->setAttribute('target-entity', Container::camelize($attributeValue) );
                                 $foreignKey->appendChild( $doc->createTextNode("\n\t\t\t") );
                                 $joinColumn = $doc->createElement('join-column');
                                 $joinColumn->setAttribute('name',$columnName);
