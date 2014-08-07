@@ -22,6 +22,9 @@ class Doctrine extends Orm
 
     public function writeConfiguration($outputDirectory) {
         foreach( $this->schema as $entityName => $entityConfiguration ) {
+            if ( isset( $entityConfiguration['_attributes']['isCrossRef'] ) ) {
+                continue;
+            }
             $doc = new \DOMDocument('1.0', 'UTF-8');
             $mapping = $doc->createElement('doctrine-mapping');
             $mapping->setAttribute('xmlns', 'http://doctrine-project.org/schemas/orm/doctrine-mapping');
@@ -142,34 +145,42 @@ class Doctrine extends Orm
                         $entity->appendChild( $foreignKey );
                         $fieldName = strpos($fTable,'\\') !== false ? substr( $fTable, strrpos($fTable,'\\')+1 ) : $fTable;
                         $pluralFieldName = \Doctrine\Common\Inflector\Inflector::pluralize($fieldName);
+                        $distantFieldName = strpos($entityName2,'\\') !== false ? substr( $entityName2, strrpos($entityName2,'\\')+1 ) : $entityName2;
+                        $pluralDistantFieldName = \Doctrine\Common\Inflector\Inflector::pluralize($distantFieldName);
                         $foreignKey->setAttribute('field', $pluralFieldName );
                         $foreignKey->setAttribute('target-entity', Container::camelize($fTable) );
-                        $foreignKey->appendChild( $doc->createTextNode("\n\t\t\t") );
-                        $cascade = $doc->createElement('cascade');
-                        $cascadeAll = $doc->createElement('cascade-all');
-                        $foreignKey->appendChild( $cascade );
-                        $cascade->appendChild( $cascadeAll );
-                        $foreignKey->appendChild( $doc->createTextNode("\n\t\t\t") );
-                        $joinTable = $doc->createElement('join-table');
-                        $joinTable->setAttribute('name',$entityName2);
-                        $foreignKey->appendChild( $joinTable );
-                        $joinTable->appendChild( $doc->createTextNode("\n\t\t\t\t") );
-                        $joinColumns = $doc->createElement('join-columns');
-                        $joinColumn = $doc->createElement('join-column');
-                        $joinColumn->setAttribute('name',$lKey);
-                        $joinColumn->setAttribute('referenced-column-name','id');
-                        $joinColumn->setAttribute('on-delete','cascade');
-                        $joinColumns->appendChild( $joinColumn );
-                        $joinTable->appendChild( $joinColumns );
-                        $joinTable->appendChild( $doc->createTextNode("\n\t\t\t\t") );
-                        $joinColumns = $doc->createElement('inverse-join-columns');
-                        $joinColumn = $doc->createElement('join-column');
-                        $joinColumn->setAttribute('name',$fKey);
-                        $joinColumn->setAttribute('referenced-column-name','id');
-                        $joinColumn->setAttribute('on-delete','cascade');
-                        $joinColumns->appendChild( $joinColumn );
-                        $joinTable->appendChild( $joinColumns );
-                        $joinTable->appendChild( $doc->createTextNode("\n\t\t\t") );
+                        if ( $lKey > $fKey ) {
+                            $foreignKey->setAttribute('inversed-by', $pluralDistantFieldName );
+                            $foreignKey->appendChild( $doc->createTextNode("\n\t\t\t") );
+                            $cascade = $doc->createElement('cascade');
+                            $cascadeAll = $doc->createElement('cascade-all');
+                            $foreignKey->appendChild( $cascade );
+                            $cascade->appendChild( $cascadeAll );
+                            $foreignKey->appendChild( $doc->createTextNode("\n\t\t\t") );
+                            $joinTable = $doc->createElement('join-table');
+                            $joinTable->setAttribute('name',$entityName2);
+                            $foreignKey->appendChild( $joinTable );
+                            $joinTable->appendChild( $doc->createTextNode("\n\t\t\t\t") );
+                            $joinColumns = $doc->createElement('join-columns');
+                            $joinColumn = $doc->createElement('join-column');
+                            $joinColumn->setAttribute('name',$lKey);
+                            $joinColumn->setAttribute('referenced-column-name','id');
+                            $joinColumn->setAttribute('on-delete','cascade');
+                            $joinColumns->appendChild( $joinColumn );
+                            $joinTable->appendChild( $joinColumns );
+                            $joinTable->appendChild( $doc->createTextNode("\n\t\t\t\t") );
+                            $joinColumns = $doc->createElement('inverse-join-columns');
+                            $joinColumn = $doc->createElement('join-column');
+                            $joinColumn->setAttribute('name',$fKey);
+                            $joinColumn->setAttribute('referenced-column-name','id');
+                            $joinColumn->setAttribute('on-delete','cascade');
+                            $joinColumns->appendChild( $joinColumn );
+                            $joinTable->appendChild( $joinColumns );
+                            $joinTable->appendChild( $doc->createTextNode("\n\t\t\t") );
+                        }
+                        else {
+                            $foreignKey->setAttribute('mapped-by', $pluralDistantFieldName );
+                        }
                         $foreignKey->appendChild( $doc->createTextNode("\n\t\t") );
                     }
                 }
