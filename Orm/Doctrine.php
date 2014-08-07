@@ -19,7 +19,7 @@ use Symfony\Component\DependencyInjection\Container;
  */
 class Doctrine extends Orm
 {
-    
+
     public function writeConfiguration($outputDirectory) {
         foreach( $this->schema as $entityName => $entityConfiguration ) {
             $doc = new \DOMDocument('1.0', 'UTF-8');
@@ -117,6 +117,60 @@ class Doctrine extends Orm
                         else if ( !in_array($attributeName, array('foreignReference','onDelete') ) ) {
                             $column->setAttribute($attributeName, $attributeValue);
                         }
+                    }
+                }
+            }
+            foreach( $this->schema as $entityName2 => $entityConfiguration2 ) {
+                if ( isset( $entityConfiguration2['_attributes']['isCrossRef'] ) ) {
+                    $fTable = null;
+                    $fKey = null;
+                    $lKey = null;
+                    foreach (  $entityConfiguration2 as $columnName2 => $columnConfiguration2 ) {
+                        if ( isset( $columnConfiguration2['foreignTable'] ) ) {
+                            if ( $columnConfiguration2['foreignTable'] == $entityName ) {
+                                $lKey = $columnName2;
+                            }
+                            else {
+                                $fTable = $columnConfiguration2['foreignTable'];
+                                $fKey = $columnName2;
+                            }
+                        }
+                    }
+                    if ( $lKey ) {
+                        $foreignKey = $doc->createElement('many-to-many');
+                        $entity->appendChild( $doc->createTextNode("\n\t\t") );
+                        $entity->appendChild( $foreignKey );
+                        $fieldName = strpos($fTable,'\\') !== false ? substr( $fTable, strrpos($fTable,'\\')+1 ) : $fTable;
+                        $pluralFieldName = \Doctrine\Common\Inflector\Inflector::pluralize($fieldName);
+                        $foreignKey->setAttribute('field', $pluralFieldName );
+                        $foreignKey->setAttribute('target-entity', Container::camelize($fTable) );
+                        $foreignKey->appendChild( $doc->createTextNode("\n\t\t\t") );
+                        $cascade = $doc->createElement('cascade');
+                        $cascadeAll = $doc->createElement('cascade-all');
+                        $foreignKey->appendChild( $cascade );
+                        $cascade->appendChild( $cascadeAll );
+                        $foreignKey->appendChild( $doc->createTextNode("\n\t\t\t") );
+                        $joinTable = $doc->createElement('join-table');
+                        $joinTable->setAttribute('name',$entityName2);
+                        $foreignKey->appendChild( $joinTable );
+                        $joinTable->appendChild( $doc->createTextNode("\n\t\t\t\t") );
+                        $joinColumns = $doc->createElement('join-columns');
+                        $joinColumn = $doc->createElement('join-column');
+                        $joinColumn->setAttribute('name',$lKey);
+                        $joinColumn->setAttribute('referenced-column-name','id');
+                        $joinColumn->setAttribute('on-delete','cascade');
+                        $joinColumns->appendChild( $joinColumn );
+                        $joinTable->appendChild( $joinColumns );
+                        $joinTable->appendChild( $doc->createTextNode("\n\t\t\t\t") );
+                        $joinColumns = $doc->createElement('inverse-join-columns');
+                        $joinColumn = $doc->createElement('join-column');
+                        $joinColumn->setAttribute('name',$fKey);
+                        $joinColumn->setAttribute('referenced-column-name','id');
+                        $joinColumn->setAttribute('on-delete','cascade');
+                        $joinColumns->appendChild( $joinColumn );
+                        $joinTable->appendChild( $joinColumns );
+                        $joinTable->appendChild( $doc->createTextNode("\n\t\t\t") );
+                        $foreignKey->appendChild( $doc->createTextNode("\n\t\t") );
                     }
                 }
             }
