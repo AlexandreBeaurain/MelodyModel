@@ -54,14 +54,16 @@ class AllCommand extends AbstractCommand
                         $namespace = substr( $bundleClass, 0, strrpos($bundleClass, '\\') );
                         try {
                             $path = $kernel->locateResource($resource);
-                            $entityRepository = dirname(dirname($resource)).'/Entity';
+                            $entityRepository = dirname(dirname($path)).'/Entity';
+                            $pathToRemove = strtr( $namespace, array('\\'=>'/') );
+                            $src = strtr( dirname(dirname($path)), array( $pathToRemove => '' ) );
                             $finder = new Finder();
                             $generateEntities = false;
-                            foreach( $finder->files()->name('*.orm.xml')->in($path.'/doctrine') as $xml ) {
+                            foreach( glob($path.'/doctrine/*.orm.xml') as $xml ) {
                                 $generateEntities = true;
                             }
                             if ( $generateEntities ) {
-                                $commandList[] = array('command'=>'doctrine:generate:entities','--no-backup'=>true,'name'=>$bundleName);
+                                $commandList[] = array('command'=>'doctrine:generate:entities','--no-backup'=>true,'--path'=>$src,'name'=>$bundleName);
                             }
                         }
                         catch (\InvalidArgumentException $e ) {
