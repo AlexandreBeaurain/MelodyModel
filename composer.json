@@ -11,17 +11,16 @@
 	"suggest" : {
 		"doctrine/doctrine-bundle" : "~1.2",
 		"doctrine/orm" : "~2.2,>=2.2.3",
-		"doctrine/inflector": "1.0.*@dev",
-		"gedmo/doctrine-extensions": "2.3.*@dev",
+		"doctrine/inflector" : "1.0.*@dev",
+		"gedmo/doctrine-extensions" : "2.3.*@dev",
 		"propel/propel-bundle" : "1.4.*@dev",
 		"willdurand/propel-geocodable-behavior" : "dev-master",
 		"willdurand/propel-typehintable-behavior" : "dev-master"
 	},
 	"autoload" : {
-		"psr-0" : {
+		"psr-4" : {
 			"Melody\\ModelBundle" : ""
 		}
 	},
-	"target-dir" : "Melody/ModelBundle",
 	"minimum-stability" : "dev"
 }
