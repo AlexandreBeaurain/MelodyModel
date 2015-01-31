@@ -19,7 +19,7 @@
 	},
 	"autoload" : {
 		"psr-4" : {
-			"Melody\\ModelBundle" : ""
+			"Melody\\ModelBundle\\" : ""
 		}
 	},
 	"minimum-stability" : "dev"
