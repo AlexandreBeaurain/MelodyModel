@@ -3,7 +3,7 @@
 	"type" : "symfony-bundle",
 	"description" : "Melody model bundle",
 	"require" : {
-		"php" : ">=5.3.3",
+		"php" : ">=5.4",
 		"doctrine/doctrine-bundle" : "~1.2",
 		"doctrine/inflector" : "1.0.*@dev",
 		"doctrine/orm" : "~2.2,>=2.2.3",
