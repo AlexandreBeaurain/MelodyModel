@@ -5,10 +5,10 @@
 	"require" : {
 		"php" : ">=5.4",
 		"doctrine/doctrine-bundle" : "~1.2",
-		"doctrine/inflector" : "1.0.*@dev",
+		"doctrine/inflector" : "1.0.*",
 		"doctrine/orm" : "~2.2,>=2.2.3",
-		"knplabs/doctrine-behaviors" : "1.1.*@dev",
-		"propel/propel-bundle" : "1.4.*@dev",
+		"knplabs/doctrine-behaviors" : "1.1.*",
+		"propel/propel-bundle" : "1.4.*",
 		"willdurand/propel-geocodable-behavior" : "dev-master",
 		"willdurand/propel-typehintable-behavior" : "dev-master"
 	},
