@@ -7,7 +7,7 @@
 		"doctrine/doctrine-bundle" : "~1.2",
 		"doctrine/inflector" : "1.0.*",
 		"doctrine/orm" : "~2.2,>=2.2.3",
-		"knplabs/doctrine-behaviors" : "1.1.*",
+		"knplabs/doctrine-behaviors" : "dev-master",
 		"propel/propel-bundle" : "1.4.*",
 		"willdurand/propel-geocodable-behavior" : "dev-master",
 		"willdurand/propel-typehintable-behavior" : "dev-master"
