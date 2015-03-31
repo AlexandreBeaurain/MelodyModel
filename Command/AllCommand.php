@@ -37,6 +37,9 @@ class AllCommand extends AbstractCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $container = $this->getContainer();
+        $loader = $GLOBALS['loader'];
+        /* @var $loader \Composer\Autoload\ClassLoader */
+        $prefixesPsr4 = $loader->getPrefixesPsr4();
         $kernel = $container->get('kernel');
         $commandList = array( array('command'=>'model:schema','') );
         foreach( $this->getRegistredOrmList($input) as $orm ) {
@@ -62,7 +65,7 @@ class AllCommand extends AbstractCommand
                             foreach( glob($path.'/doctrine/*.orm.xml') as $xml ) {
                                 $generateEntities = true;
                             }
-                            if ( $generateEntities ) {
+                            if ( $generateEntities && !isset($prefixesPsr4[$namespace.'\\']) ) {
                                 $commandList[] = array('command'=>'doctrine:generate:entities','--no-backup'=>true,'--path'=>$src,'name'=>$bundleName);
                             }
                         }
@@ -71,6 +74,7 @@ class AllCommand extends AbstractCommand
                     }
                     $commandList[] = array('command'=>'doctrine:schema:update','--force'=>true);
                     $commandList[] = array('command'=>'cache:clear','');
+                    var_dump($commandList);
                     break;
                 default:
                     break;
