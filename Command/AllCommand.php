@@ -74,7 +74,6 @@ class AllCommand extends AbstractCommand
                     }
                     $commandList[] = array('command'=>'doctrine:schema:update','--force'=>true);
                     $commandList[] = array('command'=>'cache:clear','');
-                    var_dump($commandList);
                     break;
                 default:
                     break;
