@@ -80,7 +80,7 @@ class Doctrine extends Orm
                     if ( $columnConfiguration['type'] == 'timestamp' ) {
                         $columnConfiguration['type'] = 'datetime';
                     }
-                    if ( !isset($columnConfiguration['nullable']) ) {
+                    if ( !isset($columnConfiguration['nullable']) && !isset($columnConfiguration['foreignTable']) ) {
                         $columnConfiguration['nullable'] = 'true';
                     }
                     foreach( $columnConfiguration as $attributeName => $attributeValue ) {
