@@ -21,6 +21,9 @@ class Doctrine extends Orm
 {
 
     public function writeConfiguration($outputDirectory) {
+        $documents = array();
+        $entities = array();
+        $mappings = array();
         foreach( $this->schema as $entityName => $entityConfiguration ) {
             if ( isset( $entityConfiguration['_attributes']['isCrossRef'] ) ) {
                 continue;
@@ -38,6 +41,17 @@ class Doctrine extends Orm
             $entity->setAttribute('table', $entityName);
             $mapping->appendChild( $doc->createTextNode("\n\t") );
             $mapping->appendChild( $entity );
+            $documents[$entityName] = $doc;
+            $entities[$entityName] = $entity;
+            $mappings[$entityName] = $mapping;
+        }
+        foreach( $this->schema as $entityName => $entityConfiguration ) {
+            if ( isset( $entityConfiguration['_attributes']['isCrossRef'] ) ) {
+                continue;
+            }
+            $doc = $documents[$entityName];
+            $entity = $entities[$entityName];
+            $mapping = $mappings[$entityName];
             $uniqueContraints = null;
             $indexes = null;
             $behaviors = null;
@@ -96,11 +110,18 @@ class Doctrine extends Orm
                         else if ( $attributeName == 'foreignTable' ) {
                             if ( $columnName != 'id' ) {
                                 $tagName = 'many-to-one';
+                                $targetEntityName = Container::camelize($attributeValue);
+                                $fieldName = strpos($attributeValue,'\\') !== false ? substr( $attributeValue, strrpos($attributeValue,'\\')+1 ) : $attributeValue;
+                                $distantFieldName = strpos($entityName,'\\') !== false ? substr( $entityName, strrpos($entityName,'\\')+1 ) : $entityName;
+                                $pluralDistantFieldName = \Doctrine\Common\Inflector\Inflector::pluralize($distantFieldName);
                                 $foreignKey = $doc->createElement($tagName);
                                 $entity->appendChild( $doc->createTextNode("\n\t\t") );
                                 $entity->appendChild( $foreignKey );
-                                $foreignKey->setAttribute('field', strpos($attributeValue,'\\') !== false ? substr( $attributeValue, strrpos($attributeValue,'\\')+1 ) : $attributeValue );
-                                $foreignKey->setAttribute('target-entity', Container::camelize($attributeValue) );
+                                $foreignKey->setAttribute('field', $fieldName );
+                                $foreignKey->setAttribute('target-entity', $targetEntityName );
+                                if ( isset($documents[$attributeValue]) ) {
+                                    $foreignKey->setAttribute('inversed-by', $pluralDistantFieldName );
+                                }
                                 $foreignKey->appendChild( $doc->createTextNode("\n\t\t\t") );
                                 $joinColumn = $doc->createElement('join-column');
                                 $joinColumn->setAttribute('name',$columnName);
@@ -108,6 +129,17 @@ class Doctrine extends Orm
                                 $joinColumn->setAttribute('on-delete',$columnConfiguration['onDelete']);
                                 $foreignKey->appendChild( $joinColumn );
                                 $foreignKey->appendChild( $doc->createTextNode("\n\t\t") );
+                                if ( isset($documents[$attributeValue]) ) {
+                                    $tagName = 'one-to-many';
+                                    $targetDoc = $documents[$attributeValue];
+                                    $targetEntity = $entities[$attributeValue];
+                                    $foreignKey = $targetDoc->createElement($tagName);
+                                    $targetEntity->appendChild( $targetDoc->createTextNode("\n\t\t") );
+                                    $targetEntity->appendChild( $foreignKey );
+                                    $foreignKey->setAttribute('field', $pluralDistantFieldName );
+                                    $foreignKey->setAttribute('target-entity', Container::camelize($entityName) );
+                                    $foreignKey->setAttribute('mapped-by', $fieldName );
+                                }
                             }
                         }
                         else if ( $attributeName == 'autoIncrement' ) {
@@ -213,6 +245,8 @@ class Doctrine extends Orm
             }
             $entity->appendChild( $doc->createTextNode("\n\t") );
             $mapping->appendChild( $doc->createTextNode("\n") );
+        }
+        foreach( $documents as $entityName => $doc ) {
             $doc->save($outputDirectory.'/'.Container::camelize($entityName).'.orm.xml');
         }
     }
