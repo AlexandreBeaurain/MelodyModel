@@ -62,7 +62,12 @@ class Doctrine extends Orm
             foreach( $entityConfiguration as $columnName => $columnConfiguration ) {
                 if ( $columnName == '_attributes' ) {
                     foreach ( $columnConfiguration as $attributeName => $attributeValue ) {
-                        $entity->setAttribute($attributeName,$attributeValue);
+                        if ( $attributeName == 'phpName' ) {
+                            $entity->setAttribute('table', $attributeValue);
+                        }
+                        else {
+                            $entity->setAttribute($attributeName,$attributeValue);
+                        }
                     }
                 }
                 else {
