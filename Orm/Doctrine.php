@@ -139,8 +139,12 @@ class Doctrine extends Orm
                                     $targetDoc = $documents[$attributeValue];
                                     $targetEntity = $entities[$attributeValue];
                                     $foreignKey = $targetDoc->createElement($tagName);
-                                    $targetEntity->appendChild( $targetDoc->createTextNode("\n\t\t") );
                                     $targetEntity->appendChild( $foreignKey );
+                                    $targetEntity->appendChild( $targetDoc->createTextNode("\n\t\t") );
+                                    $cascade = $targetDoc->createElement('cascade');
+                                    $foreignKey->appendChild($cascade);
+                                    $cascadePersist = $targetDoc->createElement('cascade-persist');
+                                    $cascade->appendChild($cascadePersist);
                                     $foreignKey->setAttribute('field', $pluralDistantFieldName );
                                     $foreignKey->setAttribute('target-entity', Container::camelize($entityName) );
                                     $foreignKey->setAttribute('mapped-by', $fieldName );
