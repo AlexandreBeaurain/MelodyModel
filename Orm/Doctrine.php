@@ -131,7 +131,7 @@ class Doctrine extends Orm
                                 $joinColumn = $doc->createElement('join-column');
                                 $joinColumn->setAttribute('name',$columnName);
                                 $joinColumn->setAttribute('referenced-column-name',$columnConfiguration['foreignReference']);
-                                $joinColumn->setAttribute('on-delete',$columnConfiguration['onDelete']);
+                                $joinColumn->setAttribute('on-delete',strtr($columnConfiguration['onDelete'],array('setnull'=>'SET NULL')));
                                 $foreignKey->appendChild( $joinColumn );
                                 $foreignKey->appendChild( $doc->createTextNode("\n\t\t") );
                                 if ( isset($documents[$attributeValue]) ) {
