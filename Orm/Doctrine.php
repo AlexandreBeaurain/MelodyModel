@@ -88,6 +88,9 @@ class Doctrine extends Orm
                     if ( !isset($columnConfiguration['nullable']) && !isset($columnConfiguration['foreignTable']) ) {
                         $columnConfiguration['nullable'] = 'true';
                     }
+                    if ( isset($columnConfiguration['required']) && ( $columnConfiguration['required'] == 'false' ) ) {
+                        $columnConfiguration['nullable'] = 'true';
+                    }
                     foreach( $columnConfiguration as $attributeName => $attributeValue ) {
                         if ( $attributeName == 'index' ) {
                             $indexName = $attributeValue == 'unique' ? 'unique-constraint' : 'index';

@@ -419,6 +419,7 @@ class Dia extends Schema
             }
             $this->classes[$fromClassName][$associationName.'_id']['foreignTable'] = $toClassName;
             $this->classes[$fromClassName][$associationName.'_id']['foreignReference'] = 'id';
+            $this->classes[$fromClassName][$associationName.'_id']['required'] = $toMultiplicity['min']?'true':'false' ;
             $this->classes[$fromClassName][$associationName.'_id']['onDelete'] = $toMultiplicity['min']?'cascade':'setnull';
         }
     }
