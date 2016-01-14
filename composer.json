@@ -4,18 +4,16 @@
 	"description" : "Melody model bundle",
 	"require" : {
 		"php" : ">=5.4",
-		"doctrine/doctrine-bundle" : "~1.2",
+		"doctrine/doctrine-bundle" : ">=1.2",
 		"doctrine/inflector" : "1.0.*",
-		"doctrine/orm" : "~2.2,>=2.2.3",
+		"doctrine/orm" : ">=2.2.3",
 		"knplabs/doctrine-behaviors" : "*@dev",
-		"propel/propel-bundle" : "1.4.*",
+		"propel/propel-bundle" : ">=1.4",
 		"willdurand/propel-geocodable-behavior" : "*@dev",
 		"willdurand/propel-typehintable-behavior" : "*@dev"
 	},
 	"require-dev" : {
 		"phpunit/PHPUnit" : "3.7.*"
-	},
-	"suggest" : {
 	},
 	"autoload" : {
 		"psr-4" : {
